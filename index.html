@@ -1,0 +1,1636 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#1E1E28">
+  <title>Ценностное предложение · Скиллсет</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --orange: #FC6736;
+      --dark: #1E1E28;
+      --white: #FFFFFF;
+      --gray-100: #F4F4F6;
+      --gray-200: #E5E5EA;
+      --gray-400: #9A9AA5;
+      --gray-600: #5A5A65;
+      --status-h: 60px;
+      --nav-h: 64px;
+      --font: 'Golos Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: var(--font);
+      color: var(--dark);
+      background: var(--gray-100);
+      letter-spacing: -0.02em;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ============== STATUS BAR ============== */
+    .status-bar {
+      height: var(--status-h);
+      background: var(--dark);
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 20px;
+      flex-shrink: 0;
+      font-size: 12px;
+      letter-spacing: -0.02em;
+    }
+
+    .status-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      flex-shrink: 0;
+    }
+
+    .slide-counter {
+      font-weight: 700;
+      font-size: 16px;
+      background: var(--orange);
+      color: var(--white);
+      padding: 8px 12px;
+      border-radius: 8px;
+      letter-spacing: -0.02em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .block-name {
+      font-weight: 500;
+      font-size: 12px;
+      opacity: 0.85;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 260px;
+      letter-spacing: -0.02em;
+    }
+
+    .status-center {
+      flex: 1;
+      min-width: 60px;
+    }
+
+    .progress-bar {
+      height: 8px;
+      background: rgba(255, 255, 255, 0.13);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--orange);
+      width: 0%;
+      transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 999px;
+    }
+
+    .status-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+
+    .timer {
+      font-variant-numeric: tabular-nums;
+      font-size: 12px;
+      white-space: nowrap;
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      letter-spacing: -0.02em;
+    }
+
+    .timer-label {
+      opacity: 0.55;
+      font-weight: 400;
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+    }
+
+    .timer-value {
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    .timer-target {
+      opacity: 0.45;
+      font-size: 12px;
+    }
+
+    .timer.over .timer-value { color: var(--orange); }
+
+    .timer-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 0;
+      color: var(--white);
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+      font-family: var(--font);
+    }
+
+    .timer-btn:hover { background: rgba(255, 255, 255, 0.18); }
+    .timer-btn.paused { background: var(--orange); }
+
+    /* ============== SLIDES ============== */
+    .slides {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: 20px;
+      position: relative;
+      min-height: 0;
+    }
+
+    .slide {
+      width: 100%;
+      max-width: min(1080px, calc((100vh - var(--status-h) - var(--nav-h) - 40px) * 4 / 3));
+      aspect-ratio: 4 / 3;
+      background: var(--white);
+      border-radius: 14px;
+      box-shadow: 0 4px 32px rgba(30, 30, 40, 0.1);
+      padding: clamp(28px, 5vw, 56px) clamp(32px, 6vw, 68px);
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .slide.active { display: flex; }
+
+    .slide::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 8px;
+      height: 100%;
+      background: var(--orange);
+    }
+
+    .slide.slide-title::before, .slide.slide-section::before { display: none; }
+
+    /* Мини-подпись «скиллсет.» в углу каждого слайда */
+    .slide::after {
+      content: 'скиллсет.';
+      position: absolute;
+      bottom: 24px;
+      right: 32px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--gray-400);
+      letter-spacing: -0.02em;
+      pointer-events: none;
+    }
+
+    .slide.slide-title::after,
+    .slide.slide-section::after {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    /* Typography */
+    .slide .kicker {
+      font-size: clamp(12px, 1.3vw, 16px);
+      font-weight: 700;
+      color: var(--orange);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 16px;
+    }
+
+    .slide h1 {
+      font-size: clamp(32px, 5.2vw, 64px);
+      font-weight: 700;
+      line-height: 1.04;
+      letter-spacing: -0.05em;
+      margin-bottom: 24px;
+    }
+
+    .slide h2 {
+      font-size: clamp(24px, 3vw, 36px);
+      font-weight: 500;
+      line-height: 1.2;
+      letter-spacing: -0.05em;
+      margin-bottom: 24px;
+      color: var(--gray-600);
+    }
+
+    .slide h3 {
+      font-size: clamp(28px, 3.8vw, 44px);
+      font-weight: 700;
+      line-height: 1.08;
+      letter-spacing: -0.05em;
+      margin-bottom: 24px;
+    }
+
+    .slide p {
+      font-size: clamp(16px, 1.9vw, 24px);
+      line-height: 1.45;
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+
+    .slide p.lead {
+      font-size: clamp(20px, 2.2vw, 28px);
+      line-height: 1.35;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+    }
+
+    .slide ul, .slide ol {
+      font-size: clamp(16px, 1.9vw, 24px);
+      line-height: 1.45;
+      padding-left: 24px;
+      letter-spacing: -0.02em;
+    }
+
+    .slide li {
+      margin-bottom: 8px;
+    }
+
+    .slide li::marker { color: var(--orange); font-weight: 700; }
+
+    .slide table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: clamp(12px, 1.6vw, 20px);
+      margin: 8px 0;
+      letter-spacing: -0.02em;
+    }
+
+    .slide th, .slide td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--gray-200);
+      vertical-align: top;
+      line-height: 1.35;
+    }
+
+    .slide th {
+      font-weight: 700;
+      background: var(--gray-100);
+      color: var(--dark);
+      font-size: clamp(12px, 1.4vw, 16px);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .slide tr:last-child td { border-bottom: 0; }
+
+    .accent { color: var(--orange); font-weight: 600; }
+
+    .quote {
+      font-size: clamp(20px, 2.6vw, 32px);
+      font-weight: 500;
+      line-height: 1.28;
+      padding: 32px;
+      background: var(--gray-100);
+      border-left: 4px solid var(--orange);
+      margin: 16px 0;
+      letter-spacing: -0.05em;
+      border-radius: 0 8px 8px 0;
+    }
+
+    .big-number {
+      font-size: clamp(72px, 11vw, 160px);
+      font-weight: 700;
+      color: var(--orange);
+      line-height: 0.9;
+      letter-spacing: -0.05em;
+      margin-bottom: 12px;
+    }
+
+    .big-number-label {
+      font-size: clamp(16px, 2vw, 24px);
+      font-weight: 500;
+      color: var(--gray-600);
+      margin-bottom: 32px;
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin: 32px 0;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat .num {
+      font-size: clamp(36px, 5.5vw, 72px);
+      font-weight: 700;
+      color: var(--orange);
+      line-height: 1;
+      letter-spacing: -0.05em;
+    }
+
+    .stat .label {
+      font-size: clamp(12px, 1.4vw, 16px);
+      color: var(--gray-600);
+      margin-top: 8px;
+      font-weight: 500;
+      line-height: 1.3;
+      letter-spacing: -0.02em;
+    }
+
+    .pill {
+      display: inline-block;
+      background: var(--orange);
+      color: var(--white);
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.7em;
+      font-weight: 600;
+      vertical-align: middle;
+      margin-left: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* ============== CASE SLIDES WITH IMAGES ============== */
+    .slide-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      align-items: center;
+      flex: 1;
+    }
+
+    .slide-split.image-dominant {
+      grid-template-columns: 1.4fr 1fr;
+    }
+
+    .case-image {
+      width: 100%;
+      max-height: 56vh;
+      object-fit: contain;
+      border-radius: 8px;
+      background: var(--gray-100);
+    }
+
+    .case-image.shadow {
+      box-shadow: 0 8px 32px rgba(30, 30, 40, 0.15);
+    }
+
+    .case-hero {
+      margin: 0 0 16px 0;
+      width: 100%;
+      max-height: 48vh;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+
+    .case-caption {
+      font-size: clamp(11px, 1.1vw, 13px);
+      color: var(--gray-400);
+      font-style: italic;
+      letter-spacing: -0.02em;
+      margin-top: 8px;
+    }
+
+    .case-text h3 {
+      font-size: clamp(22px, 2.8vw, 32px);
+      margin-bottom: 16px;
+    }
+
+    .case-text p,
+    .case-text li {
+      font-size: clamp(14px, 1.6vw, 18px);
+      line-height: 1.4;
+    }
+
+    @media (max-width: 860px) {
+      .slide-split,
+      .slide-split.image-dominant {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .case-image,
+      .case-hero {
+        max-height: 32vh;
+      }
+    }
+
+    .subtle {
+      color: var(--gray-400);
+      font-size: clamp(12px, 1.3vw, 16px);
+      font-style: italic;
+      letter-spacing: -0.02em;
+    }
+
+    /* Title & section slides */
+    .slide.slide-title, .slide.slide-section {
+      background: var(--dark);
+      color: var(--white);
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .slide.slide-title h1, .slide.slide-section h1 { color: var(--white); }
+    .slide.slide-title h2 { color: var(--orange); font-weight: 500; }
+
+    .slide.slide-title .lecturer {
+      margin-top: 32px;
+      color: rgba(255, 255, 255, 0.55);
+      font-size: clamp(14px, 1.6vw, 18px);
+      font-weight: 400;
+    }
+
+    .slide.slide-section .section-num {
+      font-size: clamp(80px, 14vw, 180px);
+      font-weight: 700;
+      color: var(--orange);
+      line-height: 0.9;
+      letter-spacing: -0.05em;
+      margin-bottom: 16px;
+    }
+
+    /* ============== NAVIGATION ============== */
+    .nav {
+      height: var(--nav-h);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      padding: 0 16px;
+      flex-shrink: 0;
+      background: var(--white);
+      border-top: 1px solid var(--gray-200);
+    }
+
+    .nav-btn {
+      height: 44px;
+      border: 0;
+      background: var(--dark);
+      color: var(--white);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 0 18px;
+      min-width: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+      font-family: var(--font);
+    }
+
+    .nav-btn:hover { background: var(--orange); }
+    .nav-btn:disabled { opacity: 0.25; cursor: not-allowed; background: var(--dark); }
+    .nav-btn.arrow { font-size: 20px; }
+
+    .nav-jump {
+      background: var(--white);
+      color: var(--dark);
+      border: 1px solid var(--gray-200);
+    }
+
+    .nav-jump:hover {
+      background: var(--gray-100);
+      color: var(--orange);
+    }
+
+    /* ============== MOBILE ============== */
+    @media (max-width: 860px) {
+      :root {
+        --status-h: auto;
+      }
+
+      .status-bar {
+        flex-wrap: wrap;
+        padding: 8px 12px;
+        gap: 8px 12px;
+        min-height: 52px;
+      }
+
+      .status-left {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .block-name {
+        font-size: 11px;
+        max-width: 100%;
+      }
+
+      .slide-counter {
+        font-size: 13px;
+        padding: 4px 8px;
+      }
+
+      .status-center {
+        order: 99;
+        flex-basis: 100%;
+        min-width: 0;
+      }
+
+      .status-right {
+        gap: 10px;
+      }
+
+      .timer {
+        font-size: 11px;
+      }
+
+      .timer-label { font-size: 9px; }
+      .timer-value { font-size: 12px; }
+      .timer-target { display: none; }
+      .timer-btn { width: 26px; height: 26px; font-size: 12px; }
+
+      .slides {
+        padding: 12px 10px;
+      }
+
+      .slide {
+        padding: 24px 22px 32px;
+        border-radius: 10px;
+      }
+
+      .slide::before { width: 4px; }
+
+      .slide-footer { display: none; }
+
+      .nav {
+        gap: 8px;
+        padding: 0 10px;
+      }
+
+      .nav-btn {
+        padding: 0 12px;
+        font-size: 13px;
+        height: 40px;
+      }
+
+      .stats-row {
+        gap: 12px;
+      }
+
+      .slide table {
+        font-size: 12px;
+      }
+
+      .slide th, .slide td {
+        padding: 6px 8px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .slide { padding: 20px 18px 28px; }
+      .slide h1 { font-size: 28px; }
+      .slide h3 { font-size: 22px; }
+      .slide p, .slide ul, .slide ol { font-size: 14px; }
+      .slide .quote { font-size: 17px; padding: 16px; }
+    }
+
+    @media (min-height: 900px) {
+      .slide { padding: 72px 84px; }
+    }
+
+    /* Help overlay */
+    .help {
+      position: fixed;
+      bottom: 80px;
+      right: 20px;
+      background: var(--dark);
+      color: var(--white);
+      padding: 16px 20px;
+      border-radius: 10px;
+      font-size: 13px;
+      line-height: 1.6;
+      box-shadow: 0 8px 32px rgba(30, 30, 40, 0.25);
+      z-index: 100;
+      display: none;
+      max-width: 280px;
+    }
+
+    .help.visible { display: block; }
+
+    .help h4 {
+      font-size: 13px;
+      margin-bottom: 8px;
+      color: var(--orange);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .help kbd {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 11px;
+    }
+  </style>
+</head>
+<body>
+  <!-- STATUS BAR -->
+  <header class="status-bar">
+    <div class="status-left">
+      <div class="slide-counter"><span id="slide-num">1</span> / <span id="slide-total">54</span></div>
+      <div class="block-name" id="block-name">Блок 1 · Вступление</div>
+    </div>
+    <div class="status-center">
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    </div>
+    <div class="status-right">
+      <div class="timer" id="block-timer">
+        <span class="timer-label">Блок</span>
+        <span class="timer-value" id="block-time">00:00</span>
+        <span class="timer-target">/ <span id="block-target">5:00</span></span>
+      </div>
+      <div class="timer" id="total-timer">
+        <span class="timer-label">Всего</span>
+        <span class="timer-value" id="total-time">00:00</span>
+        <span class="timer-target">/ 90:00</span>
+      </div>
+      <button class="timer-btn paused" id="pause-btn" title="Пауза / Старт (P)">▶</button>
+      <button class="timer-btn" id="reset-btn" title="Сбросить таймер (R)">↻</button>
+      <button class="timer-btn" id="help-btn" title="Подсказки (H)">?</button>
+    </div>
+  </header>
+
+  <!-- SLIDES -->
+  <main class="slides" id="slides">
+
+    <!-- ============== БЛОК 1: ВСТУПЛЕНИЕ ============== -->
+
+    <!-- Slide 1: Title -->
+    <section class="slide slide-title active" data-block="1">
+      <div>
+        <div class="kicker">Скиллсет. · лекция 2 из 4</div>
+        <h1>Ценностное<br>предложение</h1>
+        <h2>Как перестать делать ненужные фичи?</h2>
+        <div class="lecturer">Илья Филимоненков · 14 апреля 2026 · Акселератор ВШЭ</div>
+      </div>
+    </section>
+
+    <!-- Slide 2: Почему эта лекция -->
+    <section class="slide" data-block="1">
+      <div class="kicker">Почему эта лекция</div>
+      <h3>90% стартапов умирают.<br>Главная причина — продукт никому не нужен</h3>
+      <div class="stats-row">
+        <div class="stat"><div class="num">42%</div><div class="label">стартапов умирают<br>потому что продукт не нужен</div></div>
+        <div class="stat"><div class="num">90%</div><div class="label">стартапов вообще<br>не доживают до PMF</div></div>
+        <div class="stat"><div class="num">1/10</div><div class="label">гипотез<br>подтверждается в среднем</div></div>
+      </div>
+      <p class="lead">Единственный способ не войти в эту статистику — научиться формулировать ценность <span class="accent">до</span> разработки.</p>
+    </section>
+
+    <!-- Slide 3: Что унесёте -->
+    <section class="slide" data-block="1">
+      <div class="kicker">План на 90 минут</div>
+      <h3>Что вы унесёте с этой лекции</h3>
+      <ol>
+        <li>Определение ценности, которое работает (не из учебника)</li>
+        <li>Правильный уровень, на котором коммуницировать ЦП</li>
+        <li>9 готовых механик создания ценности</li>
+        <li>Алгоритм: как от интервью перейти к гипотезе ЦП за час</li>
+        <li>Способ проверить ЦП за 2 недели <span class="accent">без кода</span></li>
+      </ol>
+    </section>
+
+    <!-- Slide 4: Откуда методология -->
+    <section class="slide" data-block="1">
+      <div class="kicker">Источник методологии</div>
+      <h3>На чём строится лекция</h3>
+      <ul>
+        <li><strong>JTBD</strong> (Jobs To Be Done) — основной инструмент: ценность через работы клиента</li>
+        <li><strong>Каталог механик Скиллсет</strong> — 140+ механик, сгруппированных по бизнес-задачам</li>
+        <li><strong>RAT</strong> (Riskiest Assumption Test) — инструмент валидации гипотез</li>
+      </ul>
+      <p class="subtle">Всё, что сегодня услышите, обкатано в реальных продуктах агентства Скиллсет и в проектах клиентов.</p>
+    </section>
+
+    <!-- ============== БЛОК 2: ЦЕННОСТЬ ============== -->
+
+    <!-- Slide 5: Section -->
+    <section class="slide slide-section" data-block="2">
+      <div>
+        <div class="kicker">Блок 2 · 15 минут</div>
+        <div class="section-num">01</div>
+        <h1>Что такое ценность</h1>
+      </div>
+    </section>
+
+    <!-- Slide 6: Ловушка фичи -->
+    <section class="slide" data-block="2">
+      <div class="kicker">Ловушка №1</div>
+      <h3>Ценность ≠ фича</h3>
+      <ul>
+        <li>Большинство команд думают фичами: «давайте добавим кнопку»</li>
+        <li>Фича — это <span class="accent">сигнал</span>, что клиент заметил что-то ценное, но не сама ценность</li>
+        <li>Процесс «придумать фичу → выкатить → никому не нужна» — сломан с первого шага</li>
+      </ul>
+      <p class="lead">Люди живут не на уровне кнопок и экранов. У них есть работы, которые надо выполнить.</p>
+    </section>
+
+    <!-- Slide 7: Определение ценности -->
+    <section class="slide" data-block="2">
+      <div class="kicker">Определение, которое работает</div>
+      <h3>Что такое ценность продукта</h3>
+      <div class="quote">Ценность — это <span class="accent">выполнение работ клиента более эффективным образом</span>: за меньшие затраты времени, денег, энергии — с большей пользой.</div>
+      <p>Не «что умеет продукт». А «как меняется жизнь клиента после использования».</p>
+      <p class="subtle">Ценность уникальна для каждой пары «работа + решение». Один и тот же продукт даёт разную ценность разным людям.</p>
+    </section>
+
+    <!-- Slide 8: Как мозг оценивает -->
+    <section class="slide" data-block="2">
+      <div class="kicker">Предсказательная модель мозга</div>
+      <h3>Как мозг оценивает ценность</h3>
+      <ul>
+        <li>Мозг тратит ~<span class="accent">20% энергии</span> тела — поэтому экономит на всём</li>
+        <li>Постоянно <strong>предсказывает</strong>, насколько эффективно будет выполнена каждая работа</li>
+        <li><strong>Проблема</strong> = реальность <span class="accent">хуже</span> ожидания</li>
+        <li><strong>ВАУ</strong> = реальность <span class="accent">лучше</span> ожидания</li>
+      </ul>
+      <p class="lead">Ценность всегда относительна — относительно ожиданий клиента в конкретный момент.</p>
+    </section>
+
+    <!-- Slide 9: Ожидания растут -->
+    <section class="slide" data-block="2">
+      <div class="kicker">Главная неудобная новость</div>
+      <h3>Ожидания растут сами.<br>Без вашего участия</h3>
+      <div class="quote">Что вчера было ВАУ — сегодня базовое качество. Что сегодня ВАУ — завтра будет нормой.</div>
+      <p><strong>Пример:</strong> доставка еды за 30 минут в 2015 = чудо. В 2026 = «а что так долго?»</p>
+      <p class="lead accent">Вывод для фаундера: нельзя остановиться. Ценность надо постоянно растить.</p>
+    </section>
+
+    <!-- Slide 10: AirPods -->
+    <section class="slide" data-block="2">
+      <div class="kicker">Кейс: эволюция через механики</div>
+      <h3>Apple AirPods: 4 перехода — 4 механики</h3>
+      <table>
+        <thead>
+          <tr><th>Переход</th><th>Механика</th><th>Что изменилось</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>+ микрофон, кнопки</td><td>Больше работ одним решением</td><td>Не нужно доставать телефон для звонка</td></tr>
+          <tr><td>Проводные → беспроводные</td><td>Убить работу</td><td>Убрана работа «распутывать наушники»</td></tr>
+          <tr><td>AirPods → Pro</td><td>Добавить сегмент</td><td>Шумоподавление для тех, кому нужна тишина</td></tr>
+          <tr><td>AirPods → Max</td><td>Удовлетворить глубинные потребности</td><td>Объект статуса и эстетики</td></tr>
+        </tbody>
+      </table>
+      <p class="subtle">Одна линейка продукта — четыре разные механики создания ценности.</p>
+    </section>
+
+    <!-- ============== БЛОК 3: CORE / BIG JOBS ============== -->
+
+    <!-- Slide 11: Section -->
+    <section class="slide slide-section" data-block="3">
+      <div>
+        <div class="kicker">Блок 3 · 15 минут</div>
+        <div class="section-num">02</div>
+        <h1>Core Jobs и Big Jobs</h1>
+      </div>
+    </section>
+
+    <!-- Slide 12: Работы имеют уровни -->
+    <section class="slide" data-block="3">
+      <div class="kicker">Ключевая мысль блока</div>
+      <h3>Клиент никогда не хочет «купить такси»</h3>
+      <div class="quote">Он хочет <span class="accent">приехать на свидание спокойным и красивым</span>. Такси — это способ, а не цель.</div>
+      <ul>
+        <li>У любой работы есть работа <strong>выше уровнем</strong> — реальная мотивация</li>
+        <li>И работы <strong>ниже уровнем</strong> — реализация, которую мы берём на себя</li>
+        <li>Ценность всегда идёт <span class="accent">снизу вверх</span> — от реализации к мотивации</li>
+      </ul>
+    </section>
+
+    <!-- Slide 13: Определения -->
+    <section class="slide" data-block="3">
+      <div class="kicker">Две ключевые сущности</div>
+      <h3>Core Job и Big Job</h3>
+      <table>
+        <thead>
+          <tr><th></th><th>Core Job</th><th>Big Job</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Как выполняет продукт</td><td>Полностью</td><td>Частично</td></tr>
+          <tr><td>Граница</td><td>Потолок решения</td><td>Над потолком</td></tr>
+          <tr><td>Для пользователя</td><td>Результат продукта</td><td>Мотивация покупки</td></tr>
+        </tbody>
+      </table>
+      <p class="lead"><strong>Core Job</strong> — самая высокая работа, которую ваш продукт выполняет <span class="accent">полностью</span>.</p>
+    </section>
+
+    <!-- Slide 14: Примеры таблица -->
+    <section class="slide" data-block="3">
+      <div class="kicker">Запомните эти примеры</div>
+      <h3>Core Jobs vs Big Jobs на живых продуктах</h3>
+      <table>
+        <thead>
+          <tr><th>Продукт</th><th>Core Job</th><th>Big Job</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Яндекс.Такси</td><td>Доехать быстро и комфортно</td><td>Сходить на свидание</td></tr>
+          <tr><td>HH.ru <span class="subtle">(для HR)</span></td><td>Опубликовать вакансию и получить релевантные отклики</td><td>Закрыть позицию нужным человеком, не потеряв темп команды</td></tr>
+          <tr><td>ЦИАН <span class="subtle">(арендодатели)</span></td><td>Разместить объявление</td><td>Сдать квартиру под ключ</td></tr>
+          <tr><td>Яндекс.Аренда</td><td>Сдать квартиру под ключ</td><td>Получать стабильный пассивный доход</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Slide 15: Принцип коммуникации -->
+    <section class="slide" data-block="3">
+      <div class="kicker">Главное правило коммуникации</div>
+      <h3>Обещай на Core.<br>Продавай через Big</h3>
+      <div class="quote">Ценность идёт от Core Jobs → к Big Jobs. Обещай на уровне Core Jobs. Продавай через Big Jobs.</div>
+      <ul>
+        <li><strong>Core Jobs</strong> — то, что вы реально делаете. Лендинг-заголовки и демо</li>
+        <li><strong>Big Jobs</strong> — то, ради чего к вам приходят. Кейсы и отзывы</li>
+      </ul>
+      <p class="lead"><span class="accent">Ошибка инфо-цыган:</span> обещать Big Job («станешь миллионером»), а делать микро-работу (PDF на 20 страниц). Это манипуляция.</p>
+    </section>
+
+    <!-- Slide 16: Стратегия поднятия -->
+    <section class="slide" data-block="3">
+      <div class="kicker">Самая мощная стратегия JTBD</div>
+      <h3>Поднять Core Job на уровень выше</h3>
+      <p class="lead">Бывшая Big Job становится новой Core Job. Продукт начинает выполнять то, что раньше было только мотивацией.</p>
+      <table>
+        <thead>
+          <tr><th>Было</th><th>Стало</th><th>Механика</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>ЦИАН «разместить объявление»</td><td>Яндекс.Аренда «сдать под ключ»</td><td>Забрать всю цепочку работ</td></tr>
+          <tr><td>Свой интернет-магазин</td><td>Ozon для продавцов</td><td>Логистика, маркетинг, возвраты — под ключ</td></tr>
+          <tr><td>Word «набрать текст»</td><td>ChatGPT «получить готовый результат»</td><td>Выйти на работу выше, упростив граф ниже</td></tr>
+        </tbody>
+      </table>
+      <p class="subtle accent">⚠ Если кто-то на вашем рынке уже поднялся — вы вынуждены тоже. Иначе рынок уйдёт.</p>
+    </section>
+
+    <!-- ============== БЛОК 4: СЕГМЕНТ ============== -->
+
+    <!-- Slide 17: Section -->
+    <section class="slide slide-section" data-block="4">
+      <div>
+        <div class="kicker">Блок 4 · 10 минут</div>
+        <div class="section-num">03</div>
+        <h1>Сегмент первичен</h1>
+      </div>
+    </section>
+
+    <!-- Slide 18: ЦП без сегмента -->
+    <section class="slide" data-block="4">
+      <div class="kicker">Почему без сегмента ЦП невозможно</div>
+      <h3>Нельзя сделать «хорошо для всех»</h3>
+      <ul>
+        <li>Ресурсы команды и продукта — всегда конечны</li>
+        <li>Если размазать на всех — ВАУ не будет <span class="accent">ни для кого</span></li>
+        <li>Первый критерий сегментации — <strong>похожесть графов работ</strong>, не демография</li>
+      </ul>
+      <p class="lead">Фокусировка — это отказ инвестировать в нецелевые сегменты ради ВАУ для целевых.</p>
+    </section>
+
+    <!-- Slide 19: Не демография -->
+    <section class="slide" data-block="4">
+      <div class="kicker">Почему не демография</div>
+      <h3>Пол, возраст, доход — плохие критерии</h3>
+      <ul>
+        <li>Они ничего не говорят о том, <span class="accent">какую ценность создавать</span></li>
+        <li>Бухгалтер 25 лет и бухгалтер 45 лет — <strong>один</strong> сегмент (одни Core Jobs)</li>
+        <li>Бухгалтер и финдиректор — <strong>разные</strong> сегменты (разные Core Jobs)</li>
+        <li>Демография полезна только как <em>второй</em> критерий</li>
+      </ul>
+      <p class="lead">Сегментация должна отвечать на вопрос: «Для каких работ нас нанимают?», а не «Кому мы продаём?»</p>
+    </section>
+
+    <!-- Slide 20: Выбрал работу — выбрал судьбу -->
+    <section class="slide" data-block="4">
+      <div>
+        <div class="kicker">Главная мысль блока</div>
+        <div class="quote">«Выбрал работу сегмента —<br>выбрал судьбу компании»</div>
+        <p>Работа сегмента определяет:</p>
+        <ul>
+          <li>Как вы <strong>конкурируете</strong> — с кем и за что</li>
+          <li>Как <strong>привлекаете</strong> — какие каналы и обещания работают</li>
+          <li>Какие <strong>метрики активации</strong> — что считать «клиент на месте»</li>
+          <li>Как <strong>растите ценность</strong> — какие механики применимы</li>
+        </ul>
+        <p class="lead accent">Меняете работу — меняется всё. Это стратегическое решение.</p>
+      </div>
+    </section>
+
+    <!-- Slide 21: Кейс Ozon -->
+    <section class="slide" data-block="4">
+      <div class="kicker">Кейс — смена сегмента и уровня</div>
+      <h3>Ozon для продавцов</h3>
+      <table>
+        <thead>
+          <tr><th></th><th>Core Job</th><th>Big Job</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Свой интернет-магазин<br>(раньше)</td><td>Выложить товар и получить заказ</td><td>Построить прибыльный товарный бизнес</td></tr>
+          <tr><td><strong>Ozon для продавцов</strong><br>(сейчас)</td><td><strong>Продать под ключ — логистика, возвраты, маркетинг</strong></td><td>Тот же — прибыльный товарный бизнес</td></tr>
+        </tbody>
+      </table>
+      <p class="lead">Ozon взял бывший <em>Big Job</em> продавца и сделал его своим <em>Core Job</em>. Это — поднятие уровня из прошлого слайда, применённое к B2B-сегменту.</p>
+    </section>
+
+    <!-- ============== БЛОК 5: 9 МЕХАНИК ============== -->
+
+    <!-- Slide 22: Section -->
+    <section class="slide slide-section" data-block="5">
+      <div>
+        <div class="kicker">Блок 5 · 18 минут</div>
+        <div class="section-num">04</div>
+        <h1>9 базовых механик<br>создания ценности</h1>
+      </div>
+    </section>
+
+    <!-- Slide 23: Каталог -->
+    <section class="slide" data-block="5">
+      <div class="kicker">Как устроен каталог Скиллсет</div>
+      <h3>Не чеклист, а меню</h3>
+      <ul>
+        <li>В каталоге Скиллсет — <span class="accent">140+ механик</span>, сгруппированных по бизнес-задачам</li>
+        <li>Сегодня — 9 базовых. Без них продукт не работает</li>
+        <li>Это не <em>«применить все»</em>. Это меню: берёте те, что подходят вашему сегменту</li>
+        <li>Одна механика может решать несколько задач сразу</li>
+      </ul>
+      <p class="lead">Алгоритм работы: знаете граф работ сегмента → проходите по меню → отмечаете применимые → ранжируете по эффекту → проверяете через RAT.</p>
+    </section>
+
+    <!-- Slide 24: M1 -->
+    <section class="slide" data-block="5">
+      <div class="kicker">Механика 1</div>
+      <h3>Выполнить работу на уровне<br>ожидаемых критериев успеха</h3>
+      <ul>
+        <li><strong>Базовое качество</strong> — порог, ниже которого клиент уходит</li>
+        <li>Если не выполняете базовый уровень — <span class="accent">остальные 8 механик бесполезны</span></li>
+      </ul>
+      <p class="lead">Пример: доставка еды — еда должна приезжать горячей. Всё. Без этого никакие «бонусы», «программа лояльности» и «красивый дизайн приложения» не помогут.</p>
+    </section>
+
+    <!-- Slide 25: M2 -->
+    <section class="slide" data-block="5">
+      <div class="kicker">Механика 2</div>
+      <h3>Убить работу</h3>
+      <p class="lead">Убрать шаги, которые клиент раньше был вынужден делать.</p>
+      <ul>
+        <li><strong>AirPods</strong> убили работу «распутать провода»</li>
+        <li><strong>Tilda / Wix</strong> убили работу «настроить хостинг» — для пользователей конструкторов этой сущности вообще больше не существует</li>
+      </ul>
+      <p class="subtle">Самая элегантная механика: заметна не тем, что вы добавили, а тем, что вы забрали.</p>
+    </section>
+
+    <!-- Slide 26: M3 -->
+    <section class="slide" data-block="5">
+      <div class="kicker">Механика 3</div>
+      <h3>Выполнять больше работ одним решением</h3>
+      <p class="lead">Один продукт закрывает несколько Core Jobs клиента сразу.</p>
+      <ul>
+        <li><strong>Figma</strong> — дизайн + прототип + передача разработчикам + комментарии заказчика в одном месте</li>
+        <li><strong>Супер-аппы</strong>: Т-Банк, Яндекс — банковское, страховое, инвестиции, доставка, такси в одном приложении</li>
+      </ul>
+      <p class="subtle">Риск: если ни одну работу не делаете лучше специализированных — превращаетесь в «универсал, который всё умеет посредственно».</p>
+    </section>
+
+    <!-- Slide 27: M4 -->
+    <section class="slide" data-block="5">
+      <div class="kicker">Механика 4</div>
+      <h3>Починить проблемы</h3>
+      <p class="lead">Работа уже выполняется, но <span class="accent">плохо</span>. Ищите, где в критической цепочке клиента ломается.</p>
+      <ul>
+        <li><strong>Банки СНГ после санкций</strong>: работа «делать международные переводы» сломалась для миллионов людей</li>
+        <li>Починил первый — получил миллионный рынок без маркетинга</li>
+      </ul>
+      <p class="subtle">Срабатывает мгновенно и масштабно: клиенты уже ищут решение, им не нужно ничего объяснять.</p>
+    </section>
+
+    <!-- Slide 28: M5 -->
+    <section class="slide" data-block="5">
+      <div class="kicker">Механика 5</div>
+      <h3>Избавить от негативных эмоций →<br>привести к позитивным</h3>
+      <p class="lead">Работа может быть выполнена, но эмоционально неприятно.</p>
+      <ul>
+        <li><strong>Личный кабинет ФНС</strong> убрал ужас очередей и бумажек при налоговой отчётности</li>
+        <li><strong>Duolingo</strong> превратил стыд «я не знаю языка» в удовольствие от игры</li>
+      </ul>
+      <p class="subtle">Часто самый недооценённый вектор: «технически всё работало и раньше», но использовать было больно.</p>
+    </section>
+
+    <!-- Slide 29: M6 -->
+    <section class="slide" data-block="5">
+      <div class="kicker">Механика 6</div>
+      <h3>Снизить Job/Solution Cost</h3>
+      <p class="lead">Суммарные затраты клиента на получение ценности: <span class="accent">время + деньги + энергия + когнитивная нагрузка</span>. Не путать со «снизить цену».</p>
+      <ul>
+        <li><strong>Stripe:</strong> было — 2 недели интеграции с банками, договоры, PCI-DSS. Стало — 10 строк кода и 5 минут</li>
+      </ul>
+      <p class="subtle">Часто самое выгодное: вы не меняете сам продукт, но убираете барьеры на пути к нему.</p>
+    </section>
+
+    <!-- Slide 30: M7 -->
+    <section class="slide" data-block="5">
+      <div class="kicker">Механика 7</div>
+      <h3>Уменьшить временные гэпы<br>между работами</h3>
+      <p class="lead">Работы в цепочке разделены промежутками. Убираем промежуток — клиент быстрее приходит к Big Job.</p>
+      <ul>
+        <li><strong>Самокат / Яндекс.Лавка:</strong> доставка продуктов за 15 минут. Гэп «собраться → дойти до магазина → выбрать → вернуться» сжат до нуля</li>
+        <li><strong>Uber:</strong> убрал гэп «ловить машину на улице» — заказ через приложение за 30 секунд</li>
+      </ul>
+    </section>
+
+    <!-- Slide 31: M8 -->
+    <section class="slide" data-block="5">
+      <div class="kicker">Механика 8</div>
+      <h3>Выйти на высокоуровневую работу,<br>упростив граф ниже</h3>
+      <p class="lead">Клиент делал 10 шагов — теперь делает 1. Всё остальное берёт на себя продукт.</p>
+      <ul>
+        <li><strong>ChatGPT:</strong> раньше цепочка «гуглить → читать → писать → редактировать → форматировать». Сейчас — один запрос</li>
+      </ul>
+      <p class="subtle">Обычно — это <em>тот же</em> кейс, что стратегия поднятия Core Job из блока 3. Связь не случайна: это одна и та же идея с двух сторон.</p>
+    </section>
+
+    <!-- Slide 32: M9 -->
+    <section class="slide" data-block="5">
+      <div class="kicker">Механика 9</div>
+      <h3>Выйти на высокоуровневую работу<br>без упрощения графа</h3>
+      <p class="lead">Взять на себя всю цепочку <span class="accent">как сервис</span>. Не упростить, а забрать.</p>
+      <ul>
+        <li><strong>Яндекс.Аренда:</strong> не упростили процесс сдачи квартиры, а забрали его целиком. Фотографирование, показы, договор, приём оплаты — всё делает платформа</li>
+      </ul>
+      <p class="subtle">Дороже масштабировать (нужны люди и процессы), но быстрее даёт клиенту ВАУ — потому что он вообще перестаёт думать о работе.</p>
+    </section>
+
+    <!-- ============== БЛОК 6: B2B ============== -->
+
+    <!-- Slide 33: Section -->
+    <section class="slide slide-section" data-block="6">
+      <div>
+        <div class="kicker">Блок 6 · 10 минут</div>
+        <div class="section-num">05</div>
+        <h1>B2B-специфика</h1>
+      </div>
+    </section>
+
+    <!-- Slide 34: Зачем отдельный блок -->
+    <section class="slide" data-block="6">
+      <div class="kicker">Почему B2B заслуживает отдельного блока</div>
+      <h3>Всё выше — ядро.<br>В B2B есть 4 отличия</h3>
+      <p class="lead">JTBD универсален. Core/Big Jobs, 9 механик, принцип «обещай на core, продавай через big» — работают одинаково и для B2C, и для B2B.</p>
+      <ul>
+        <li>ЦП в B2B — <strong>двухэтажное</strong>: для компании и для ЛПР лично</li>
+        <li>Личные мотивации ЛПР — <strong>не бонус</strong>, а главное</li>
+        <li>Проблема — <strong>сила</strong>, которая проталкивает сложную сделку</li>
+        <li>У сделки <strong>не один клиент</strong>, а 6 ролей</li>
+      </ul>
+    </section>
+
+    <!-- Slide 35: Двухэтажное ЦП -->
+    <section class="slide" data-block="6">
+      <div class="kicker">Отличие №1</div>
+      <h3>ЦП в B2B — двухэтажное</h3>
+      <p class="lead">В B2C: один человек = один набор работ = одно ЦП.<br>В B2B: <span class="accent">компания покупает, но решает конкретный человек со своими личными работами</span>.</p>
+      <table>
+        <thead>
+          <tr><th>Кто ЛПР</th><th>Бизнес-мотивации</th><th>Личные мотивации</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Гендиректор / активный фаундер</td><td>50%</td><td>50%</td></tr>
+          <tr><td>ЛПР далёк от основателя</td><td>10–20%</td><td><strong class="accent">80–90%</strong></td></tr>
+        </tbody>
+      </table>
+      <p class="subtle">Метафора: KPI — это река, по которой сотрудник не может не двигаться. Но по этой реке плывёт лодочка личных целей, и ЛПР гребёт изо всех сил, чтобы выполнить именно их.</p>
+    </section>
+
+    <!-- Slide 36: 5 мотиваций ЛПР -->
+    <section class="slide" data-block="6">
+      <div class="kicker">Готовая номенклатура</div>
+      <h3>5 личных мотиваций ЛПР</h3>
+      <table>
+        <thead>
+          <tr><th>Мотивация</th><th>Что обещать в ЦП</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Меня не уволят</strong><br><span class="subtle">страх увольнения</span></td><td>«Решение безопасное. KPI выполним без проблем. Не придётся оправдываться»</td></tr>
+          <tr><td><strong>Буду с элитой</strong><br><span class="subtle">статус</span></td><td>«Лучшие компании отрасли покупают у нас»</td></tr>
+          <tr><td><strong>Позиция вырастет</strong><br><span class="subtle">карьерные очки</span></td><td>«Через 2 месяца сможешь показать, какой результат принёс компании»</td></tr>
+          <tr><td><strong>Не хочу рутину</strong><br><span class="subtle">интерес</span></td><td>«Снимаем с тебя A, B, C. Получишь результат, которым можно гордиться»</td></tr>
+          <tr><td><strong>Не останусь без поддержки</strong><br><span class="subtle">безопасность</span></td><td>«Будем рядом после внедрения. Не придётся краснеть»</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Slide 37: Проблема как сила -->
+    <section class="slide" data-block="6">
+      <div class="kicker">Отличие №2</div>
+      <h3>Проблема — это сила,<br>проталкивающая сделку</h3>
+      <p class="lead">В B2C ЦП может работать без острой проблемы (новый опыт, статус, эмоция).<br>В B2B сделка дорогая и сложная → нужна энергия, чтобы её протолкнуть через сопротивление.</p>
+      <div class="quote">В B2B основной риск — не «есть ли рынок». Основной риск — <span class="accent">сможете ли вы протащить сделку</span>.</div>
+      <p class="lead accent">Вывод: ваша механика создания ценности должна явно чинить конкретную острую боль. «Новый классный опыт» в B2B не продаётся.</p>
+    </section>
+
+    <!-- Slide 38: Роли в сделке -->
+    <section class="slide" data-block="6">
+      <div class="kicker">Отличие №3 — у сделки 6 ролей</div>
+      <h3>Кто на самом деле участвует в B2B-покупке</h3>
+      <table>
+        <tbody>
+          <tr><td><strong>Бизнес-заказчик</strong></td><td>Инициирует сделку. Получает конкретный бизнес-результат</td></tr>
+          <tr><td><strong>ЛПР</strong></td><td>Самый дорогой человек в комнате. Последнее слово за ним</td></tr>
+          <tr><td><strong>Держатель бюджета</strong></td><td>Обычно финдиректор. Финансовый стоп-кран</td></tr>
+          <tr><td><strong>ЛВР</strong> <span class="subtle">(влияющие)</span></td><td>Могут заблокировать: IT-директор, безопасник, юрист</td></tr>
+          <tr><td><strong>Чемпионы</strong></td><td>Проталкивают вас изнутри. Их личные работы совпали с вашим ЦП</td></tr>
+          <tr><td><strong>Саботажники</strong></td><td>Блокируют. Часто — ЛПР прошлого внедрения, чьё решение вы замещаете</td></tr>
+        </tbody>
+      </table>
+      <p class="subtle">Ваше ЦП должно знать работы <em>каждой</em> роли. И быть достаточно сильным для чемпиона, чтобы он захотел вас проталкивать.</p>
+    </section>
+
+    <!-- Slide 39: Живой пример №1 — Amazon Business -->
+    <section class="slide" data-block="6">
+      <div class="kicker">Живой пример №1 · B2B-кампания 2023–2025</div>
+      <h3 style="font-size: clamp(24px, 3vw, 36px); margin-bottom: 20px;">Amazon Business: «Buy smarter. Dream bigger.»</h3>
+      <img src="assets/amazon-business-billboard.png" alt="Amazon Business billboard — Buy smarter. Dream bigger." class="case-hero shadow">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 8px;">
+        <div>
+          <p style="font-size: clamp(13px, 1.5vw, 16px); margin-bottom: 8px;"><strong style="color:#c03">Было:</strong> «купи канцтовары и офисную мебель быстрее и дешевле» — чистая B2B-функция</p>
+          <p style="font-size: clamp(13px, 1.5vw, 16px); margin-bottom: 0;"><strong class="accent">Стало:</strong> «помоги своему бизнесу достичь мечты» — обращение к личной мотивации владельца</p>
+        </div>
+        <div>
+          <p style="font-size: clamp(13px, 1.5vw, 16px); margin-bottom: 8px;"><strong>Результат запуска:</strong></p>
+          <ul style="font-size: clamp(12px, 1.4vw, 15px); padding-left: 20px; margin-bottom: 0;">
+            <li>3,5 млрд показов</li>
+            <li>781 млн видео-просмотров</li>
+            <li>+590 bps к намерению купить</li>
+          </ul>
+        </div>
+      </div>
+      <p class="case-caption">Источник: BSSP agency · Amazon Business · Ad Age</p>
+    </section>
+
+    <!-- Slide 40: Живой пример №2 — Lyft / Uber for Business -->
+    <section class="slide" data-block="6">
+      <div class="kicker">Живой пример №2 · Личная плюшка за корпоративную трату</div>
+      <h3 style="font-size: clamp(22px, 2.8vw, 32px); margin-bottom: 16px;">Lyft и Uber для бизнеса:<br>корпоративные поездки → личные мили</h3>
+      <div class="slide-split image-dominant">
+        <div>
+          <img src="assets/lyft-uber-business-benefits.png" alt="Lyft and Uber for Business benefits — personal rewards" class="case-image shadow">
+        </div>
+        <div class="case-text">
+          <p><strong>Механика:</strong></p>
+          <ul style="margin-bottom: 16px;">
+            <li>Lyft × United: <strong>1–4 мили</strong> за каждый $1 на бизнес-поездках</li>
+            <li>Lyft × Hilton: <strong>6 баллов</strong> за $1</li>
+            <li>Uber One: <strong>6 % кэшбэк</strong> в личный аккаунт</li>
+          </ul>
+          <p class="accent" style="font-weight: 500;">Компания платит за поездку. Плюшки падают лично сотруднику.</p>
+          <p style="margin-top: 12px;"><strong>52 %</strong> бизнес-путешественников называют такие «off-the-clock» плюшки ключевым фактором выбора сервиса.</p>
+        </div>
+      </div>
+      <p class="case-caption">Ровно та же механика — в Яндекс Go для бизнеса: 10 % баллами на Плюс за корпоративные поездки. Источник: Uber Newsroom 2025 · Purdue Operations</p>
+    </section>
+
+    <!-- Slide 41: Исследования -->
+    <section class="slide" data-block="6">
+      <div class="kicker">Свежие данные 2024</div>
+      <h3>Личное победило профессиональное</h3>
+      <p class="lead"><strong>dentsu B2B Superpowers Index 2024</strong> — 3 528 B2B-покупателей в 4 индустриях глобально. Впервые <span class="accent">личные мотивации обогнали профессиональные</span> в B2B-решениях о покупке.</p>
+      <table>
+        <thead>
+          <tr><th>Драйвер</th><th>2021</th><th>2022</th><th>2023</th><th>2024</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Профессиональные</td><td>65%</td><td>61%</td><td>59%</td><td><strong>48% ↓</strong></td></tr>
+          <tr><td>Личные</td><td>35%</td><td>39%</td><td>41%</td><td><strong class="accent">52% ↑</strong></td></tr>
+        </tbody>
+      </table>
+      <p>Топ-3 драйвера B2B-решений — все про <strong>доверие</strong>: «безопасно подписать контракт», «хороший работодатель», «мыслитель в индустрии».</p>
+      <p class="subtle">Классика: CEB / Google — если ЛПР видит личную выгоду, он в <strong>8 раз чаще</strong> выбирает дорогой продукт. Эти данные с 2012 года только подтверждаются.</p>
+    </section>
+
+    <!-- ============== БЛОК 7: ФОРМУЛИРОВКА ============== -->
+
+    <!-- Slide 40: Section -->
+    <section class="slide slide-section" data-block="7">
+      <div>
+        <div class="kicker">Блок 7 · 7 минут</div>
+        <div class="section-num">06</div>
+        <h1>Как сформулировать<br>гипотезу ЦП</h1>
+      </div>
+    </section>
+
+    <!-- Slide 41: Формула -->
+    <section class="slide" data-block="7">
+      <div class="kicker">Формула JTBD-сценария</div>
+      <h3>Шаблон гипотезы ценностного предложения</h3>
+      <div class="quote">
+        <strong>Когда</strong> [контекст + триггер + активирующее знание]<br>
+        <strong>я хочу</strong> [ожидаемый результат работы]<br>
+        <strong>чтобы</strong> [результат Big Job + эмоциональное состояние]
+      </div>
+      <p class="lead">Три части — три слоя JTBD: контекст (когда), Core Job (хочу), Big Job + эмоция (чтобы).</p>
+    </section>
+
+    <!-- Slide 42: Пример + антипример -->
+    <section class="slide" data-block="7">
+      <div class="kicker">Как выглядит правильная формулировка</div>
+      <h3>Плохо vs хорошо</h3>
+      <p><strong style="color:#c03">✗ Плохо:</strong></p>
+      <p>«Фаундер хочет удобный инструмент для валидации идей»</p>
+      <p class="subtle">Это не формулировка, это описание фичи. Нет контекста, нет Big Job, нет эмоции.</p>
+      <br>
+      <p><strong class="accent">✓ Хорошо:</strong></p>
+      <div class="quote">Когда у меня появилась новая идея и я не хочу тратить месяц и 300 тыс на зря — хочу за вечер понять, есть ли за ней реальный сегмент — чтобы вложиться в идею, в которой уверен, и не провалить следующий год.</div>
+    </section>
+
+    <!-- Slide 45: Упражнение — напишите гипотезу ЦП в чат -->
+    <section class="slide" data-block="7">
+      <div class="kicker">Упражнение · 3 минуты</div>
+      <h3>Напишите свою гипотезу ЦП в чат</h3>
+      <p class="lead">5 элементов, которые должны быть в формулировке:</p>
+      <ol>
+        <li><strong>Сегмент</strong> — по Core + Big Jobs (не по демографии)</li>
+        <li><strong>Работа</strong>, которую делаем значимо лучше альтернатив</li>
+        <li><strong>Механика</strong> создания ценности (из каталога блока 5)</li>
+        <li><strong>Обещание</strong> на уровне Big Job</li>
+        <li><strong>Доставка</strong> на уровне Core Job</li>
+      </ol>
+      <p class="subtle accent">👉 Сейчас возьмите свой продукт или идею и напишите гипотезу ЦП прямо в чат трансляции. Я зачитаю несколько и разберу вживую.</p>
+    </section>
+
+    <!-- ============== БЛОК 8: RAT ============== -->
+
+    <!-- Slide 44: Section -->
+    <section class="slide slide-section" data-block="8">
+      <div>
+        <div class="kicker">Блок 8 · 7 минут</div>
+        <div class="section-num">07</div>
+        <h1>RAT<br><span style="font-size:0.5em;opacity:0.7">проверка ЦП до разработки</span></h1>
+      </div>
+    </section>
+
+    <!-- Slide 45: Главная ошибка -->
+    <section class="slide" data-block="8">
+      <div class="kicker">Главная ошибка фаундера</div>
+      <h3>Строить до проверки</h3>
+      <div class="quote">Цель запуска — <strong>не запустить продукт</strong>. Цель — максимально быстро и дёшево <span class="accent">купить знание</span>: есть PMF или нужно пивотиться?</div>
+      <ul>
+        <li>Любая гипотеза ЦП — это набор <strong>допущений</strong></li>
+        <li>Каждое может оказаться ложным</li>
+        <li>Наиболее вероятный исход запуска — провал. Поэтому фокус не «как запустить», а «как максимально быстро убить гипотезу, если она нежизнеспособна»</li>
+      </ul>
+    </section>
+
+    <!-- Slide 46: Формула -->
+    <section class="slide" data-block="8">
+      <div class="kicker">RAT = Riskiest Assumption Test</div>
+      <h3>Формула приоритизации</h3>
+      <div class="quote" style="text-align:center;font-size:clamp(22px,2.8vw,32px);">Risk Score = <span class="accent">Вероятность ошибки × Последствия</span> ÷ Стоимость проверки</div>
+      <ul>
+        <li>Находите допущение с <strong>максимальным Risk Score</strong> — проверяете первым</li>
+        <li>Идея: <strong>рискованное и дешёвое</strong> идёт первым. Не «дорогое и страшное»</li>
+        <li>Проверяете <em>одно допущение</em>, не весь продукт сразу</li>
+      </ul>
+    </section>
+
+    <!-- Slide 47: Форматы без кода -->
+    <section class="slide" data-block="8">
+      <div class="kicker">Как проверить — без строчки кода</div>
+      <h3>Форматы RAT-эксперимента</h3>
+      <ul>
+        <li><strong>15–20 глубинных интервью</strong> — самое частое и дешёвое</li>
+        <li><strong>Лендинг с формой предзаказа</strong> — проверяет готовность платить</li>
+        <li><strong>«Волшебник из страны Оз»</strong> — ручная имитация продукта</li>
+        <li><strong>A/B-тест рекламы</strong> с разными обещаниями ЦП</li>
+        <li><strong>Бумажный или Figma-прототип</strong> — для UX-гипотез</li>
+      </ul>
+      <p class="lead">Один RAT-эксперимент занимает от нескольких часов до пары недель. И часто обходится <span class="accent">без разработки</span>.</p>
+    </section>
+
+    <!-- Slide: Плохо vs хорошо RAT-допущение -->
+    <section class="slide" data-block="8">
+      <div class="kicker">Как формулировать допущение</div>
+      <h3>Плохо vs хорошо</h3>
+      <p><strong style="color:#c03">✗ Плохо:</strong></p>
+      <p>«В Сыктывкаре будут заказывать дорогую пиццу с доставкой»</p>
+      <p class="subtle">Нет конкретики, нет метрики, нет способа сказать «подтверждено» или «нет». Можно спорить бесконечно.</p>
+      <br>
+      <p><strong class="accent">✓ Хорошо:</strong></p>
+      <div class="quote">За первый месяц работы точки в Сыктывкаре <strong>500+ уникальных заказов</strong> при соблюдении гарантии «60 минут или бесплатно» — без обрушения юнит-экономики.</div>
+      <p class="subtle">Конкретная аудитория · измеримый порог · чёткий критерий успеха · временные рамки · условия.</p>
+    </section>
+
+    <!-- Slide: Скиллсет Лаб — инструмент для RAT -->
+    <section class="slide" data-block="8">
+      <div class="kicker">Инструмент от Скиллсет · <a href="https://lab.skillset.design/" style="color: var(--orange); text-decoration: none; border-bottom: 1px solid var(--orange);">lab.skillset.design</a></div>
+      <h3 style="font-size: clamp(24px, 3vw, 36px); margin-bottom: 16px;">Скиллсет Лаб формулирует RAT-допущения<br>и даёт план проверки каждого</h3>
+      <div class="slide-split image-dominant">
+        <div>
+          <img src="assets/skillset-lab-risks.png" alt="Скиллсет Лаб — раздел Риски с реальными RAT-допущениями" class="case-image shadow">
+        </div>
+        <div class="case-text">
+          <p><strong>Что делает Скиллсет Лаб:</strong></p>
+          <ul style="margin-bottom: 16px;">
+            <li>Собирает ваш контекст (идея, сегмент, продукт)</li>
+            <li>Вычленяет рискованные допущения</li>
+            <li>Оценивает каждое по уровню риска</li>
+            <li>Даёт <span class="accent">пошаговый план проверки</span>: каналы, бюджет, метрики, сроки</li>
+          </ul>
+          <p>На скрине — реальный проект строительного маркетплейса: 4 допущения высокого риска + конкретные эксперименты (Директ, интервью, MVP, нетворкинг) с бюджетами и KPI.</p>
+          <p class="accent" style="font-weight: 500; margin-top: 12px;">Открытый бета-тест сейчас идёт бесплатно для участников акселератора ВШЭ.</p>
+        </div>
+      </div>
+      <p class="case-caption">lab.skillset.design · используйте промокод АКСЕЛЬ при регистрации</p>
+    </section>
+
+    <!-- Slide 48: Додо Пицца -->
+    <section class="slide" data-block="8">
+      <div class="kicker">Классический не-IT кейс</div>
+      <h3>Додо Пицца — Сыктывкар, 2011</h3>
+      <p class="lead">Фёдор Овчинников запускал пиццерию в городе 230 тыс. жителей. Три рискованных предположения, которые проверял <strong>до</strong> полноценного запуска сети:</p>
+      <ol>
+        <li>Клиенты малого города <strong>готовы заказывать</strong> дорогую (для региона) пиццу с доставкой</li>
+        <li>Модель <strong>франшизы масштабируется</strong> при жёсткой стандартизации качества</li>
+        <li>Гарантия «<strong>доставка за 60 минут или бесплатно</strong>» выдержит рост заказов без обрушения юнит-экономики</li>
+      </ol>
+      <p class="subtle">Сегодня Додо — одна из крупнейших пицца-сетей мира. Но каждое из этих допущений могло убить проект. Их проверяли явно, по одному.</p>
+    </section>
+
+    <!-- ============== БЛОК 9: ИТОГИ ============== -->
+
+    <!-- Slide 49: 5 мыслей -->
+    <section class="slide" data-block="9">
+      <div class="kicker">Главное</div>
+      <h3>5 мыслей, которые стоит унести</h3>
+      <ol>
+        <li><strong>Ценность ≠ фича.</strong> Ценность = эффективность выполнения работ клиента</li>
+        <li><strong>У работ есть уровни.</strong> Core Jobs — что делаете. Big Jobs — почему к вам приходят</li>
+        <li><strong>Сегмент определяет всё.</strong> «Выбрал работу — выбрал судьбу»</li>
+        <li><strong>9 механик — это меню, не чеклист.</strong> В B2B добавляется второй этаж — личные работы ЛПР</li>
+        <li><strong>ЦП = гипотеза.</strong> RAT проверяет её до MVP, за недели, а не месяцы</li>
+      </ol>
+    </section>
+
+    <!-- Slide: Q&A и следующие встречи -->
+    <section class="slide slide-title" data-block="9">
+      <div>
+        <div class="kicker">Что дальше</div>
+        <h1>Вопросы?</h1>
+        <h2 style="margin-top:28px; font-size: clamp(18px, 2.2vw, 24px); color: rgba(255,255,255,0.7);">Следующие встречи</h2>
+        <p style="font-size: clamp(16px, 2vw, 22px); margin-top: 16px;"><span class="accent"><strong>21 апреля — Этапы создания MVP</strong></span> <span style="opacity:0.6; font-size: 0.8em;">основная лекция</span></p>
+        <p style="opacity:0.7; font-size: clamp(13px, 1.6vw, 16px); margin-top: 16px; text-transform: uppercase; letter-spacing: 0.1em;">опционально</p>
+        <p style="opacity:0.85; font-size: clamp(14px, 1.7vw, 18px);">18 апреля — продуктовый вайб-кодинг: архитектура и процессы</p>
+        <p style="opacity:0.85; font-size: clamp(14px, 1.7vw, 18px);">25 апреля — воркшоп по вайб-кодингу: PRD, лендинг/прототип <span style="opacity:0.6;">(инструменты ~$100, самостоятельно)</span></p>
+        <br>
+        <p class="accent" style="font-size: clamp(13px, 1.5vw, 16px);"><strong>Домашка:</strong> выпишите 5–7 допущений своей идеи, отранжируйте по Risk Score, спроектируйте 1 эксперимент. Попробуйте <a href="https://lab.skillset.design/" style="color: var(--orange); border-bottom: 1px solid var(--orange); text-decoration: none;">lab.skillset.design</a> — он соберёт допущения за вас.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- NAVIGATION -->
+  <nav class="nav">
+    <button class="nav-btn arrow" id="prev" title="Назад (←)">←</button>
+    <button class="nav-btn nav-jump" id="jump-start" title="В начало (Home)">↤</button>
+    <button class="nav-btn nav-jump" id="jump-block" title="Перейти к блоку (B)">Блок</button>
+    <button class="nav-btn arrow" id="next" title="Вперёд (→ или пробел)">→</button>
+  </nav>
+
+  <!-- HELP OVERLAY -->
+  <div class="help" id="help">
+    <h4>Горячие клавиши</h4>
+    <p><kbd>→</kbd> <kbd>Space</kbd> — следующий слайд</p>
+    <p><kbd>←</kbd> — предыдущий слайд</p>
+    <p><kbd>P</kbd> — пауза / старт таймера</p>
+    <p><kbd>R</kbd> — сбросить таймеры</p>
+    <p><kbd>B</kbd> — перейти к началу блока</p>
+    <p><kbd>Home</kbd> — в самое начало</p>
+    <p><kbd>H</kbd> — скрыть/показать подсказки</p>
+  </div>
+
+  <script>
+    // ============== BLOCKS ==============
+    const BLOCKS = [
+      { id: 1, name: 'Вступление', targetMin: 5 },
+      { id: 2, name: 'Что такое ценность', targetMin: 13 },
+      { id: 3, name: 'Core Jobs и Big Jobs', targetMin: 13 },
+      { id: 4, name: 'Сегмент первичен', targetMin: 9 },
+      { id: 5, name: '9 базовых механик', targetMin: 14 },
+      { id: 6, name: 'B2B-специфика', targetMin: 20 },
+      { id: 7, name: 'Формулировка ЦП', targetMin: 6 },
+      { id: 8, name: 'RAT: проверка до кода', targetMin: 7 },
+      { id: 9, name: 'Итоги + Q&A', targetMin: 3 }
+    ];
+
+    // ============== STATE ==============
+    const slides = document.querySelectorAll('.slide');
+    const TOTAL_SLIDES = slides.length;
+    const TOTAL_TARGET_SEC = 90 * 60;
+
+    let currentSlide = 0;
+    let totalSeconds = 0;
+    let blockSeconds = {};
+    let currentBlockId = 1;
+    let isPaused = true;
+    let hasStarted = false;
+
+    // ============== DOM ==============
+    const $ = id => document.getElementById(id);
+    const slideNumEl = $('slide-num');
+    const slideTotalEl = $('slide-total');
+    const blockNameEl = $('block-name');
+    const blockTimeEl = $('block-time');
+    const blockTargetEl = $('block-target');
+    const totalTimeEl = $('total-time');
+    const progressFillEl = $('progress-fill');
+    const blockTimerEl = $('block-timer');
+    const totalTimerEl = $('total-timer');
+    const pauseBtn = $('pause-btn');
+    const resetBtn = $('reset-btn');
+    const helpBtn = $('help-btn');
+    const helpEl = $('help');
+    const prevBtn = $('prev');
+    const nextBtn = $('next');
+    const jumpStartBtn = $('jump-start');
+    const jumpBlockBtn = $('jump-block');
+
+    slideTotalEl.textContent = TOTAL_SLIDES;
+
+    // ============== HELPERS ==============
+    function formatTime(sec) {
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    function getBlock(id) {
+      return BLOCKS.find(b => b.id === id);
+    }
+
+    function getSlideBlockId(idx) {
+      return parseInt(slides[idx].dataset.block);
+    }
+
+    // ============== RENDER ==============
+    function updateStatusBar() {
+      const blockId = getSlideBlockId(currentSlide);
+      currentBlockId = blockId;
+      const block = getBlock(blockId);
+
+      slideNumEl.textContent = currentSlide + 1;
+      blockNameEl.textContent = `Блок ${blockId} · ${block.name}`;
+
+      const bs = blockSeconds[blockId] || 0;
+      blockTimeEl.textContent = formatTime(bs);
+      blockTargetEl.textContent = `${block.targetMin}:00`;
+
+      totalTimeEl.textContent = formatTime(totalSeconds);
+
+      progressFillEl.style.width = `${((currentSlide + 1) / TOTAL_SLIDES) * 100}%`;
+
+      blockTimerEl.classList.toggle('over', bs > block.targetMin * 60);
+      totalTimerEl.classList.toggle('over', totalSeconds > TOTAL_TARGET_SEC);
+
+      prevBtn.disabled = currentSlide === 0;
+      nextBtn.disabled = currentSlide === TOTAL_SLIDES - 1;
+    }
+
+    function showSlide(n) {
+      if (n < 0 || n >= TOTAL_SLIDES) return;
+      slides[currentSlide].classList.remove('active');
+      currentSlide = n;
+      slides[currentSlide].classList.add('active');
+
+      // Start timer on first real advance from slide 0
+      if (!hasStarted && n > 0) {
+        hasStarted = true;
+        isPaused = false;
+        pauseBtn.textContent = '⏸';
+        pauseBtn.classList.remove('paused');
+      }
+
+      updateStatusBar();
+    }
+
+    function next() { showSlide(currentSlide + 1); }
+    function prev() { showSlide(currentSlide - 1); }
+
+    function jumpToBlockStart() {
+      // Find the first slide of the current block (slide-section)
+      for (let i = currentSlide; i >= 0; i--) {
+        if (slides[i].classList.contains('slide-section') || i === 0) {
+          showSlide(i);
+          return;
+        }
+      }
+    }
+
+    function togglePause() {
+      if (!hasStarted) {
+        hasStarted = true;
+        isPaused = false;
+        pauseBtn.textContent = '⏸';
+        pauseBtn.classList.remove('paused');
+        return;
+      }
+      isPaused = !isPaused;
+      pauseBtn.textContent = isPaused ? '▶' : '⏸';
+      pauseBtn.classList.toggle('paused', isPaused);
+    }
+
+    function resetTimers() {
+      if (!confirm('Сбросить оба таймера в ноль?')) return;
+      totalSeconds = 0;
+      blockSeconds = {};
+      hasStarted = false;
+      isPaused = true;
+      pauseBtn.textContent = '▶';
+      pauseBtn.classList.add('paused');
+      updateStatusBar();
+    }
+
+    function toggleHelp() {
+      helpEl.classList.toggle('visible');
+    }
+
+    // ============== TIMER TICK ==============
+    setInterval(() => {
+      if (!isPaused && hasStarted) {
+        totalSeconds++;
+        blockSeconds[currentBlockId] = (blockSeconds[currentBlockId] || 0) + 1;
+        updateStatusBar();
+      }
+    }, 1000);
+
+    // ============== KEYBOARD ==============
+    document.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); next(); }
+      else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); prev(); }
+      else if (e.key === 'p' || e.key === 'P') { e.preventDefault(); togglePause(); }
+      else if (e.key === 'r' || e.key === 'R') { resetTimers(); }
+      else if (e.key === 'b' || e.key === 'B') { jumpToBlockStart(); }
+      else if (e.key === 'h' || e.key === 'H') { toggleHelp(); }
+      else if (e.key === 'Home') { showSlide(0); }
+      else if (e.key === 'End') { showSlide(TOTAL_SLIDES - 1); }
+    });
+
+    // ============== CLICKS ==============
+    prevBtn.addEventListener('click', prev);
+    nextBtn.addEventListener('click', next);
+    pauseBtn.addEventListener('click', togglePause);
+    resetBtn.addEventListener('click', resetTimers);
+    helpBtn.addEventListener('click', toggleHelp);
+    jumpStartBtn.addEventListener('click', () => showSlide(0));
+    jumpBlockBtn.addEventListener('click', jumpToBlockStart);
+
+    // ============== TOUCH SWIPE ==============
+    let touchStartX = 0;
+    let touchStartY = 0;
+    document.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+      touchStartY = e.changedTouches[0].screenY;
+    }, { passive: true });
+    document.addEventListener('touchend', (e) => {
+      const dx = e.changedTouches[0].screenX - touchStartX;
+      const dy = e.changedTouches[0].screenY - touchStartY;
+      if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) {
+        if (dx < 0) next(); else prev();
+      }
+    }, { passive: true });
+
+    // ============== INIT ==============
+    updateStatusBar();
+  </script>
+</body>
+</html>
