@@ -608,7 +608,7 @@
         aspect-ratio: auto;
         max-width: 100%;
         max-height: none;
-        min-height: calc(100vh - var(--status-h) - var(--nav-h) - 24px);
+        min-height: 0;
         padding: 24px 20px 20px;
         border-radius: 12px;
         justify-content: flex-start;
@@ -628,8 +628,11 @@
         font-size: 11px;
       }
 
+      /* Только для обложки и разделителей блоков — полноэкранное
+         центрирование. Остальные слайды растут по контенту. */
       .slide.slide-title,
       .slide.slide-section {
+        min-height: calc(100vh - var(--status-h) - var(--nav-h) - 24px);
         text-align: center;
         justify-content: center;
       }
