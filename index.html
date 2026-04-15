@@ -380,6 +380,16 @@
       letter-spacing: 0.05em;
     }
 
+    /* ============== TWO-COLUMN CONTENT ============== */
+    /* Для сравнительных колонок «Было/Стало», «Результат» и т.п.
+       На мобильном превращается в один блок. */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: 8px;
+    }
+
     /* ============== CASE SLIDES WITH IMAGES ============== */
     .slide-split {
       display: grid;
@@ -596,8 +606,9 @@
 
       #reset-btn, #help-btn { display: none; }
 
-      /* Слайды: колонка без aspect-ratio, длинные слайды скроллятся */
+      /* Слайды: вертикальный flex, один слайд = один блок по высоте контента */
       .slides {
+        flex-direction: column;
         padding: 12px;
         overflow: auto;
         align-items: stretch;
@@ -694,8 +705,13 @@
 
       /* Случаи с картинками: картинка сверху, текст под ней */
       .slide-split,
-      .slide-split.image-dominant {
+      .slide-split.image-dominant,
+      .two-col {
         display: block;
+      }
+
+      .two-col > * + * {
+        margin-top: 16px;
       }
 
       .case-image,
@@ -1311,16 +1327,16 @@
     <!-- Slide 39: Живой пример №1 — Amazon Business -->
     <section class="slide" data-block="6">
       <div class="kicker">Живой пример №1 · B2B-кампания 2023–2025</div>
-      <h3 style="font-size: clamp(24px, 3vw, 36px); margin-bottom: 20px;">Amazon Business: «Buy smarter. Dream bigger.»</h3>
+      <h3>Amazon Business: «Buy smarter. Dream bigger.»</h3>
       <img src="assets/amazon-business-billboard.png" alt="Amazon Business billboard — Buy smarter. Dream bigger." class="case-hero shadow">
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 8px;">
+      <div class="two-col">
         <div>
-          <p style="font-size: clamp(13px, 1.5vw, 16px); margin-bottom: 8px;"><strong style="color:#c03">Было:</strong> «купи канцтовары и офисную мебель быстрее и дешевле» — чистая B2B-функция</p>
-          <p style="font-size: clamp(13px, 1.5vw, 16px); margin-bottom: 0;"><strong class="accent">Стало:</strong> «помоги своему бизнесу достичь мечты» — обращение к личной мотивации владельца</p>
+          <p><strong style="color:#c03">Было:</strong> «купи канцтовары и офисную мебель быстрее и дешевле» — чистая B2B-функция</p>
+          <p><strong class="accent">Стало:</strong> «помоги своему бизнесу достичь мечты» — обращение к личной мотивации владельца</p>
         </div>
         <div>
-          <p style="font-size: clamp(13px, 1.5vw, 16px); margin-bottom: 8px;"><strong>Результат запуска:</strong></p>
-          <ul style="font-size: clamp(12px, 1.4vw, 15px); padding-left: 20px; margin-bottom: 0;">
+          <p><strong>Результат запуска:</strong></p>
+          <ul>
             <li>3,5 млрд показов</li>
             <li>781 млн видео-просмотров</li>
             <li>+590 bps к намерению купить</li>
@@ -1485,21 +1501,23 @@
     <!-- Slide: Скиллсет Лаб — инструмент для RAT -->
     <section class="slide" data-block="8">
       <div class="kicker"><a href="https://lab.skillset.design/" style="color: var(--orange); text-decoration: none; border-bottom: 1px solid var(--orange);">lab.skillset.design</a> · промокод <strong>AKSELHSE</strong></div>
-      <h3 style="font-size: clamp(22px, 2.6vw, 32px); margin-bottom: 12px;">Скиллсет Лаб: RAT-анализ за вас</h3>
-      <div style="display: grid; grid-template-columns: 2.6fr 1fr; gap: 24px; align-items: center; flex: 1; min-height: 0;">
-        <img src="assets/skillset-lab-risks.png" alt="Скиллсет Лаб — раздел Риски с реальными RAT-допущениями" class="shadow" style="width: 100%; max-height: 62vh; object-fit: contain; border-radius: 8px;">
-        <div style="font-size: clamp(13px, 1.4vw, 16px); line-height: 1.4;">
-          <p style="font-size: clamp(13px, 1.4vw, 16px); margin-bottom: 10px;"><strong>Что делает:</strong></p>
-          <ul style="font-size: clamp(12px, 1.35vw, 15px); padding-left: 18px; margin-bottom: 14px;">
+      <h3>Скиллсет Лаб: RAT-анализ за вас</h3>
+      <div class="slide-split image-dominant">
+        <div>
+          <img src="assets/skillset-lab-risks.png" alt="Скиллсет Лаб — раздел Риски с реальными RAT-допущениями" class="case-image shadow">
+        </div>
+        <div class="case-text">
+          <p><strong>Что делает:</strong></p>
+          <ul>
             <li>Собирает ваш контекст</li>
             <li>Вычленяет рискованные допущения</li>
             <li>Оценивает по Risk Score</li>
             <li class="accent">Даёт план проверки: бюджет, метрики, каналы, сроки</li>
           </ul>
-          <p style="font-size: clamp(12px, 1.3vw, 14px); margin-bottom: 0;" class="subtle">На скрине — реальный проект строительного маркетплейса</p>
+          <p class="subtle">На скрине — реальный проект строительного маркетплейса</p>
         </div>
       </div>
-      <p class="case-caption" style="text-align: center;">Открытый бета-тест · бесплатно для участников акселератора ВШЭ по промокоду <strong>AKSELHSE</strong></p>
+      <p class="case-caption">Открытый бета-тест · бесплатно для участников акселератора ВШЭ по промокоду <strong>AKSELHSE</strong></p>
     </section>
 
     <!-- Slide 48: Додо Пицца -->
