@@ -628,13 +628,20 @@
         font-size: 11px;
       }
 
-      /* Только для обложки и разделителей блоков — полноэкранное
-         центрирование. Остальные слайды растут по контенту. */
+      /* Обложка и разделители блоков на мобильном — тоже по контенту,
+         без искусственного растягивания на весь экран. */
       .slide.slide-title,
       .slide.slide-section {
-        min-height: calc(100vh - var(--status-h) - var(--nav-h) - 24px);
+        min-height: 0;
         text-align: center;
-        justify-content: center;
+        justify-content: flex-start;
+        padding: 40px 24px 32px;
+      }
+
+      /* На тёмных слайдах фирменная подпись не нужна — бренд уже есть в kicker */
+      .slide.slide-title::after,
+      .slide.slide-section::after {
+        display: none;
       }
 
       /* Типографика адаптивная */
@@ -1652,6 +1659,12 @@
       slides[currentSlide].classList.remove('active');
       currentSlide = n;
       slides[currentSlide].classList.add('active');
+
+      // Скролл в начало нового слайда (важно на мобильном, когда
+      // предыдущий слайд был прокручен вниз)
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      const slidesEl = document.getElementById('slides');
+      if (slidesEl) slidesEl.scrollTop = 0;
 
       // Start timer on first real advance from slide 0
       if (!hasStarted && n > 0) {
