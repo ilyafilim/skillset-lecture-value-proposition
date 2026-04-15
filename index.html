@@ -527,98 +527,220 @@
     }
 
     /* ============== MOBILE ============== */
+    /* ============== MOBILE ============== */
+    /* Ключевое изменение: на мобильном слайд — это скроллящаяся вертикальная
+       колонка, а не 4:3-карточка. Контент больше не обрезается. */
     @media (max-width: 860px) {
       :root {
-        --status-h: auto;
+        --status-h: 48px;
+        --nav-h: 52px;
       }
 
+      body {
+        overflow: auto;
+      }
+
+      /* Status bar: одна строка, только важное */
       .status-bar {
-        flex-wrap: wrap;
-        padding: 8px 12px;
-        gap: 8px 12px;
-        min-height: 52px;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        padding: 0 12px;
+        gap: 8px;
+        height: var(--status-h);
+        flex-wrap: nowrap;
       }
 
       .status-left {
-        flex: 1;
-        min-width: 0;
-      }
-
-      .block-name {
-        font-size: 11px;
-        max-width: 100%;
+        flex-shrink: 0;
+        gap: 8px;
       }
 
       .slide-counter {
-        font-size: 13px;
+        font-size: 12px;
         padding: 4px 8px;
+        border-radius: 4px;
       }
 
+      /* Скрываем название блока — места нет */
+      .block-name {
+        display: none;
+      }
+
+      /* Прогресс-бар тоже не помещается */
       .status-center {
-        order: 99;
-        flex-basis: 100%;
-        min-width: 0;
+        display: none;
       }
 
       .status-right {
-        gap: 10px;
+        gap: 8px;
+        flex-shrink: 0;
+        margin-left: auto;
       }
 
       .timer {
-        font-size: 11px;
+        font-size: 10px;
+        gap: 2px;
       }
 
-      .timer-label { font-size: 9px; }
+      .timer-label { display: none; }
       .timer-value { font-size: 12px; }
       .timer-target { display: none; }
-      .timer-btn { width: 26px; height: 26px; font-size: 12px; }
 
+      .timer-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+        border-radius: 4px;
+      }
+
+      #reset-btn, #help-btn { display: none; }
+
+      /* Слайды: колонка без aspect-ratio, длинные слайды скроллятся */
       .slides {
-        padding: 12px 10px;
+        padding: 12px;
+        overflow: auto;
+        align-items: stretch;
+        justify-content: flex-start;
       }
 
       .slide {
-        padding: 24px 22px 32px;
-        border-radius: 10px;
+        aspect-ratio: auto;
+        max-width: 100%;
+        max-height: none;
+        min-height: calc(100vh - var(--status-h) - var(--nav-h) - 24px);
+        padding: 24px 20px 20px;
+        border-radius: 12px;
+        justify-content: flex-start;
+        overflow: visible;
       }
 
-      .slide::before { width: 4px; }
+      .slide::before {
+        width: 4px;
+      }
 
-      .slide-footer { display: none; }
+      /* Мини-подпись «скиллсет.» — в поток, не в абсолют */
+      .slide::after {
+        position: static;
+        display: block;
+        margin-top: 24px;
+        text-align: right;
+        font-size: 11px;
+      }
 
+      .slide.slide-title,
+      .slide.slide-section {
+        text-align: center;
+        justify-content: center;
+      }
+
+      /* Типографика адаптивная */
+      .slide h1 { font-size: 32px; line-height: 1.08; margin-bottom: 12px; }
+      .slide h2 { font-size: 20px; margin-bottom: 16px; }
+      .slide h3 { font-size: 22px; line-height: 1.12; margin-bottom: 16px; }
+      .slide p { font-size: 15px; margin-bottom: 10px; }
+      .slide p.lead { font-size: 16px; margin-bottom: 12px; }
+      .slide ul, .slide ol { font-size: 15px; padding-left: 20px; }
+      .slide li { margin-bottom: 6px; }
+
+      .slide .kicker {
+        font-size: 11px;
+        margin-bottom: 12px;
+      }
+
+      /* Таблицы — компактно */
+      .slide table {
+        font-size: 12px;
+        margin: 8px 0;
+      }
+      .slide th, .slide td {
+        padding: 8px 10px;
+      }
+      .slide th {
+        font-size: 10px;
+      }
+
+      /* Stats row — меньше числа, чтобы влезли */
+      .stats-row {
+        gap: 12px;
+        margin: 16px 0;
+      }
+      .stat .num { font-size: 36px; }
+      .stat .label { font-size: 11px; }
+
+      /* Quote — адаптив */
+      .quote {
+        font-size: 16px;
+        padding: 16px;
+        line-height: 1.3;
+        margin: 12px 0;
+      }
+
+      /* Section header: маленький номер блока */
+      .slide.slide-section .section-num {
+        font-size: 72px;
+        margin-bottom: 8px;
+      }
+
+      /* Случаи с картинками: картинка сверху, текст под ней */
+      .slide-split,
+      .slide-split.image-dominant {
+        display: block;
+      }
+
+      .case-image,
+      .case-hero {
+        max-height: 40vh;
+        width: 100%;
+        margin-bottom: 12px;
+      }
+
+      .case-text p, .case-text li {
+        font-size: 14px;
+      }
+
+      .case-caption {
+        font-size: 11px;
+      }
+
+      /* Nav bar */
       .nav {
+        position: sticky;
+        bottom: 0;
+        z-index: 10;
         gap: 8px;
-        padding: 0 10px;
+        padding: 0 12px;
+        height: var(--nav-h);
       }
 
       .nav-btn {
-        padding: 0 12px;
+        padding: 0 14px;
         font-size: 13px;
         height: 40px;
+        min-width: 48px;
       }
 
-      .stats-row {
-        gap: 12px;
+      .nav-btn.arrow {
+        font-size: 18px;
       }
 
-      .slide table {
-        font-size: 12px;
-      }
-
-      .slide th, .slide td {
-        padding: 6px 8px;
-      }
+      /* Скрываем кнопку "в начало" — её место — клавиши */
+      #jump-start { display: none; }
     }
 
     @media (max-width: 480px) {
-      .slide { padding: 20px 18px 28px; }
+      .slide { padding: 20px 16px 16px; }
       .slide h1 { font-size: 28px; }
-      .slide h3 { font-size: 22px; }
+      .slide h3 { font-size: 20px; }
       .slide p, .slide ul, .slide ol { font-size: 14px; }
-      .slide .quote { font-size: 17px; padding: 16px; }
+      .slide p.lead { font-size: 15px; }
+      .slide .quote { font-size: 15px; padding: 14px; }
+      .stat .num { font-size: 32px; }
+      .slide table { font-size: 11px; }
+      .slide th, .slide td { padding: 6px 8px; }
     }
 
-    @media (min-height: 900px) {
+    @media (min-width: 861px) and (min-height: 900px) {
       .slide { padding: 72px 84px; }
     }
 
